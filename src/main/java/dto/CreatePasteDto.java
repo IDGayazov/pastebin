@@ -6,6 +6,7 @@ public class CreatePasteDto {
     private String name;
     private String category;
     private String text;
+    private boolean isPublic;
     private Duration duration;
 
     private CreatePasteDto(){
@@ -39,6 +40,11 @@ public class CreatePasteDto {
 
         public Builder text(String text){
             CreatePasteDto.this.text = text;
+            return this;
+        }
+        
+        public Builder isPublic(boolean isPublic){
+            CreatePasteDto.this.isPublic = isPublic;
             return this;
         }
 
@@ -76,6 +82,10 @@ public class CreatePasteDto {
         return text;
     }
 
+    public boolean isPublic() {
+    	return isPublic;
+    }
+    
     public void setText(String text) {
         this.text = text;
     }

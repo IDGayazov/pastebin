@@ -7,7 +7,7 @@ import dto.UserDto;
 import entity.Paste;
 import exception.DateExpiredException;
 import exception.InvalidHashException;
-import util.HashGenerator;
+import hash.Sha256HashGenerator;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ public class PasteService {
     private static final TextService textService = TextService.getInstance();
     private static final UserService userService = UserService.getInstance();
     private static final PasteService INSTANCE = new PasteService();
-
+    private static final Sha256HashGenerator hashGenerator = Sha256HashGenerator.getInstance();
 
     private PasteService(){
 
@@ -33,7 +33,7 @@ public class PasteService {
         LocalDateTime expiredDate = createdDate.plus(pasteDto.getDuration());
 
         String hash;
-        hash = HashGenerator.generateHash(
+        hash = hashGenerator.generate(
                 pasteDto.getName() + pasteDto.getCategory() +
                         createdDate + expiredDate + pasteDto.getText()
         );
@@ -44,6 +44,8 @@ public class PasteService {
                 .hash(hash)
                 .createDate(createdDate)
                 .expiredDate(expiredDate)
+                .isPublic(pasteDto.isPublic())
+                .userId(userId)
                 .build();
 
         textService.saveText(pasteDto.getText(), hash);
@@ -78,7 +80,12 @@ public class PasteService {
                 .createDate(pasteInfo.getCreateDate())
                 .expiredDate(pasteInfo.getExpiredDate())
                 .username(username)
+                .isPublic(pasteInfo.isPublic())
                 .build();
+    }
+    
+    public List<Paste> getPastesByUserId(int id) throws SQLException{
+    	return pasteDao.findByUserId(id);
     }
 
     public boolean deletePasteByHash(String hash) throws SQLException {

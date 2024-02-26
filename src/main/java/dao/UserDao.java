@@ -16,6 +16,8 @@ public class UserDao implements Dao<Integer, User>{
     private static final String FIND_ALL = "SELECT * FROM users";
     private static final String FIND_BY_ID = "SELECT * FROM users WHERE id = ?";
     private static final String SAVE = "INSERT INTO users(login, email, password) VALUES(?, ?, ?)";
+    private static final String IS_EXISTS_USER = "SELECT 1 FROM users WHERE login = ?";
+    private static final String FIND_BY_LOGIN = "SELECT * FROM users WHERE login = ?";
 
     private UserDao(){
 
@@ -52,15 +54,43 @@ public class UserDao implements Dao<Integer, User>{
             var result = preparedStatement.executeQuery();
             User user = null;
             if(result.next()){
-                user = User.builder()
-                        .id(id)
-                        .login(result.getObject("login", String.class))
-                        .email(result.getObject("email", String.class))
-                        .password(result.getObject("password", String.class))
-                        .build();
+                user = buildUser(result);
             }
             return Optional.ofNullable(user);
         }
+    }
+    
+    public Optional<User> findByLogin(String login) throws SQLException{
+    	
+    	try(
+    			var connection = DBManager.getConnection();
+    			var preparedStatement = connection.prepareStatement(FIND_BY_LOGIN);
+    	){
+    		preparedStatement.setObject(1, login);
+    		var result = preparedStatement.executeQuery();
+    		
+    		User user = null;
+    		if(result.next()) {
+    			user = buildUser(result);
+    		}
+    		
+    		return Optional.ofNullable(user);	
+    	}
+    }
+    
+    public boolean isExistsUser(String login) throws SQLException{
+    	try(
+    			var connection = DBManager.getConnection();
+    			var preparedStatement = connection.prepareStatement(IS_EXISTS_USER);){
+    		
+    		preparedStatement.setString(1, login);
+    		var result = preparedStatement.executeQuery();
+    		
+    		if(result.next()) {
+    			return true;
+    		}
+    		return false;
+    	}
     }
 
     @Override
@@ -90,10 +120,10 @@ public class UserDao implements Dao<Integer, User>{
     		return entity;	
     	}
     }
-
+    
     private User buildUser(ResultSet usersResultSet) throws SQLException {
         return User.builder()
-                .id(usersResultSet.getObject("id", int.class))
+                .id(usersResultSet.getObject("id", Integer.class))
                 .email(usersResultSet.getObject("email", String.class))
                 .login(usersResultSet.getObject("login", String.class))
                 .password(usersResultSet.getObject("password", String.class))

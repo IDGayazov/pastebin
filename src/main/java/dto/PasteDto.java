@@ -11,6 +11,7 @@ public class PasteDto {
     private LocalDateTime createDate;
     private LocalDateTime expiredDate;
     private Integer fileSize;
+    private boolean isPublic;
     private String username;
 
     public PasteDto(){
@@ -58,6 +59,11 @@ public class PasteDto {
         public Builder username(String username){
             PasteDto.this.username = username;
             return this;
+        }
+        
+        public Builder isPublic(boolean isPublic) {
+        	PasteDto.this.isPublic = isPublic;
+        	return this;
         }
 
         public PasteDto build(){
@@ -115,6 +121,10 @@ public class PasteDto {
 
     public Integer getFileSize() {
         return fileSize;
+    }
+    
+    public boolean isPublic() {
+    	return isPublic;
     }
 
     public void setFileSize(Integer fileSize) {

@@ -9,6 +9,7 @@ public class Paste {
     private String hash;
     private LocalDateTime createDate;
     private LocalDateTime expiredDate;
+    private boolean isPublic;
     private int userId;
 
     public Paste(){
@@ -16,12 +17,14 @@ public class Paste {
     }
 
     public Paste(String name, String category, String hash,
-                 LocalDateTime create_date, LocalDateTime expired_date, int user_id) {
+                 LocalDateTime create_date, LocalDateTime expired_date, 
+                 boolean isPublic, int user_id) {
         this.name = name;
         this.category = category;
         this.hash = hash;
         this.createDate = create_date;
         this.expiredDate = expired_date;
+        this.isPublic = isPublic;
         this.userId = user_id;
     }
 
@@ -63,6 +66,11 @@ public class Paste {
         public Builder expiredDate(LocalDateTime expiredDate){
             Paste.this.expiredDate = expiredDate;
             return this;
+        }
+        
+        public Builder isPublic(boolean isPublic) {
+        	Paste.this.isPublic = isPublic;
+        	return this;
         }
 
         public Builder userId(int userId){
@@ -126,9 +134,17 @@ public class Paste {
     public int getUserId() {
         return userId;
     }
-
+    
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+    
+    public boolean isPublic() {
+    	return isPublic;
+    }
+    
+    public void setIsPublic(boolean isPublic) {
+    	this.isPublic = isPublic;
     }
 
     @Override
@@ -141,6 +157,7 @@ public class Paste {
                 ", create_date=" + createDate +
                 ", expired_date=" + expiredDate +
                 ", user_id=" + userId +
+                ", isPublic=" + isPublic +
                 '}';
     }
 }

@@ -18,13 +18,14 @@ public class PasteDao implements Dao<Integer, Paste>{
     private static final String FIND_BY_ID = "SELECT * FROM paste " +
             "WHERE id = ?";
 
-    private static final String SAVE = "INSERT INTO paste(paste_name, category, hash, create_date, expired_date, user_id)" +
-            "VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String SAVE = "INSERT INTO paste(paste_name, category, hash, create_date, expired_date, user_id, isPublic)" +
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     private static final String FIND_BY_HASH = "SELECT * FROM paste WHERE hash = ?";
 
     private static final String FIND_HASH_BY_EXPIRED_DATE = "SELECT hash FROM paste WHERE expired_date < now()";
     private static final String DELETE_BY_HASH = "DELETE FROM paste WHERE hash = ?";
+    private static final String FIND_BY_USER = "SELECT * FROM paste WHERE user_id = ?";
 
     private PasteDao(){
 
@@ -65,6 +66,22 @@ public class PasteDao implements Dao<Integer, Paste>{
 
             return Optional.ofNullable(paste);
         }
+    }
+    
+    public List<Paste> findByUserId(int userId) throws SQLException{
+    	
+    	try(var connection = DBManager.getConnection();
+    		var preparedStatement = connection.prepareStatement(FIND_BY_USER)){
+    		
+    		preparedStatement.setInt(1, userId);
+    		ResultSet result = preparedStatement.executeQuery();
+    		
+    		List<Paste> pastes = new ArrayList<>();
+    		while(result.next()) {
+    			pastes.add(buildPaste(result));
+    		}
+    		return pastes;
+    	}
     }
 
     public Optional<Paste> findByHash(String hash) throws SQLException{
@@ -113,6 +130,7 @@ public class PasteDao implements Dao<Integer, Paste>{
             preparedStatement.setObject(4, entity.getCreateDate());
             preparedStatement.setObject(5, entity.getExpiredDate());
             preparedStatement.setObject(6, entity.getUserId());
+            preparedStatement.setObject(7, entity.isPublic());
 
             preparedStatement.executeUpdate();
 
@@ -132,6 +150,7 @@ public class PasteDao implements Dao<Integer, Paste>{
                 .createDate(paste.getObject("create_date", Timestamp.class).toLocalDateTime())
                 .expiredDate(paste.getObject("expired_date", Timestamp.class).toLocalDateTime())
                 .userId(paste.getObject("user_id", Integer.class))
+                .isPublic(paste.getObject("isPublic", Boolean.class))
                 .build();
     }
 }
